@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Second Bite - Surplus Food Rescue & Instant Refunds</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white">
+
+    <!-- TOP ANNOUNCEMENT BANNER -->
+    <div class="bg-emerald-800 text-emerald-100 text-xs sm:text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>⚡ <strong>14,280+ meals</strong> rescued in your area this week! 100% Quality Inspected Guarantee.</span>
+    </div>
+
+    <!-- MAIN APP HEADER -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <!-- LOGO & BRAND -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('browse')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+                    <i data-lucide="utensils" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold text-xl tracking-tight text-slate-900">Second<span class="text-emerald-600">Bite</span></span>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Save Food</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 hidden sm:block">Surplus Food Rescue & Savings</p>
+                </div>
+            </div>
+
+            <!-- MULTI-LOCATION SELECTOR (Header) -->
+            <div class="hidden md:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full text-xs font-medium text-slate-700 hover:bg-slate-200 transition">
+                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
+                <select id="header-location-select" onchange="onHeaderLocationChange(this.value)" class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                    <option value="ALL">All Stores (Downtown SF)</option>
+                    <option value="store-1">Green Leaf Bakery (Market St)</option>
+                    <option value="store-2">Urban Greens Bistro (Montgomery St)</option>
+                    <option value="store-3">Daily Organic Market (Howard St)</option>
+                    <option value="store-4">Harbor View Deli (Embarcadero)</option>
+                    <option value="store-5">Westside Pizzeria (Mission St)</option>
+                </select>
+            </div>
+
+            <!-- NAV TABS (DESKTOP) -->
+            <nav class="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-sm font-medium">
+                <button onclick="switchTab('browse')" id="nav-btn-browse" class="px-3 py-1.5 rounded-lg transition-all text-emerald-700 bg-white shadow-sm font-semibold">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="store" class="w-4 h-4"></i> Browse Meals
+                    </div>
+                </button>
+                <button onclick="switchTab('map')" id="nav-btn-map" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i> Store Map
+                    </div>
+                </button>
+                <button onclick="switchTab('orders')" id="nav-btn-orders" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 relative">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> My Orders
+                        <span id="active-orders-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                </button>
+                <button onclick="switchTab('impact')" id="nav-btn-impact" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="leaf" class="w-4 h-4 text-emerald-600"></i> Impact
+                    </div>
+                </button>
+                <button onclick="switchTab('support')" id="nav-btn-support" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-amber-600"></i> Refunds & Help
+                    </div>
+                </button>
+            </nav>
+
+            <!-- ACTION BUTTONS: IMPACT SUMMARY & CART -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="switchTab('impact')" class="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 hover:bg-emerald-100 transition">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span>$<span id="user-header-savings">48.50</span> Saved</span>
+                </button>
+
+                <button onclick="toggleCartDrawer(true)" class="relative p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span id="cart-count-badge" class="absolute -top-1.5 -right-1.5 bg-amber-500 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MOBILE NAV BAR (BOTTOM) -->
+        <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 py-2 px-4 flex justify-around items-center shadow-lg">
+            <button onclick="switchTab('browse')" id="mob-nav-browse" class="flex flex-col items-center gap-0.5 text-xs text-emerald-600 font-semibold">
+                <i data-lucide="store" class="w-5 h-5"></i>
+                <span>Browse</span>
+            </button>
+            <button onclick="switchTab('map')" id="mob-nav-map" class="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-emerald-600">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                <span>Map</span>
+            </button>
+            <button onclick="switchTab('orders')" id="mob-nav-orders" class="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-emerald-600">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <span>Orders</span>
+            </button>
+            <button onclick="switchTab('impact')" id="mob-nav-impact" class="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-emerald-600">
+                <i data-lucide="leaf" class="w-5 h-5"></i>
+                <span>Impact</span>
+            </button>
+            <button onclick="switchTab('support')" id="mob-nav-support" class="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-emerald-600">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                <span>Help/Refund</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-12">
+
+        <!-- TAB 1: BROWSE MEALS & DISCOVERY VIEW -->
+        <section id="tab-browse" class="fade-in space-y-6">
+            
+            <!-- HERO BANNER -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white p-6 sm:p-10 shadow-xl">
+                <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700/80 border border-emerald-500/30 text-emerald-200 text-xs font-semibold mb-4">
+                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        100% Quality Checked Surplus Meals
+                    </span>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight mb-3">
+                        Delicious Food.<br><span class="text-amber-400">Up to 70% Off.</span> Zero Waste.
+                    </h1>
+                    <p class="text-slate-200 text-sm sm:text-base leading-relaxed mb-6">
+                        Every day, top local bakeries, cafés, and restaurants have fresh surplus meals. Know <strong>exactly</strong> what’s inside before buying, with instant refund protection.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/15 text-xs sm:text-sm">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+                            <div>
+                                <p class="font-bold text-white">Instant Refund Protection</p>
+                                <p class="text-emerald-200 text-[11px]">1-click refund if item is unavailable or wrong</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/15 text-xs sm:text-sm">
+                            <i data-lucide="eye" class="w-5 h-5 text-amber-400"></i>
+                            <div>
+                                <p class="font-bold text-white">Full Transparency</p>
+                                <p class="text-amber-200 text-[11px]">Exact items listed before checkout</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEARCH & FILTER TOOLBAR -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="search-input" onkeyup="applyFilters()" placeholder="Search bakery, sourdough, sushi, salad, bistro..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                    </div>
+                    
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <select id="store-location-filter" onchange="applyFilters()" class="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="ALL">📍 All Store Locations</option>
+                            <option value="store-1">📍 Green Leaf Bakery (0.4 mi)</option>
+                            <option value="store-2">📍 Urban Greens Bistro (0.8 mi)</option>
+                            <option value="store-3">📍 Daily Organic Market (1.2 mi)</option>
+                            <option value="store-4">📍 Harbor View Deli (1.4 mi)</option>
+                            <option value="store-5">📍 Westside Pizzeria (1.8 mi)</option>
+                        </select>
+
+                        <select id="category-filter" onchange="applyFilters()" class="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="ALL">All Categories</option>
+                            <option value="Bakery & Pastry">🥖 Bakery & Pastry</option>
+                            <option value="Prepared Meals">🍲 Prepared Meals</option>
+                            <option value="Grocery Bag">🧺 Grocery Bag</option>
+                            <option value="Café & Treats">☕ Café & Treats</option>
+                            <option value="Pizza & Bistro">🍕 Pizza & Bistro</option>
+                        </select>
+
+                        <select id="sort-filter" onchange="applyFilters()" class="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="DISTANCE">Nearest First</option>
+                            <option value="PRICE_LOW">Price: Low to High</option>
+                            <option value="DISCOUNT">Biggest Discount</option>
+                            <option value="RATING">Highest Rated</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">Dietary:</span>
+                        <button onclick="toggleDietFilter('VEGAN')" id="diet-btn-VEGAN" class="diet-chip px-3 py-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:border-emerald-500 transition">🌱 Vegan</button>
+                        <button onclick="toggleDietFilter('VEGETARIAN')" id="diet-btn-VEGETARIAN" class="diet-chip px-3 py-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:border-emerald-500 transition">🧀 Vegetarian</button>
+                        <button onclick="toggleDietFilter('GLUTEN_FREE')" id="diet-btn-GLUTEN_FREE" class="diet-chip px-3 py-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:border-emerald-500 transition">🌾 Gluten-Free</button>
+                    </div>
+
+                    <div class="flex items-center gap-3 text-xs font-medium text-slate-600 w-full sm:w-auto justify-between">
+                        <span>Max Price: <strong class="text-emerald-700" id="price-slider-val">$12.00</strong></span>
+                        <input type="range" id="price-slider" min="3" max="15" step="0.5" value="12" oninput="updatePriceSlider(this.value)" class="accent-emerald-600 cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEAL CARDS GRID -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span>Surplus Meals Available Now</span>
+                        <span id="meals-count-badge" class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-2 py-0.5 rounded-full">6 Stores</span>
+                    </h2>
+                    <span class="text-xs text-slate-500"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1 text-emerald-600"></i>Pickup Window Active Today</span>
+                </div>
+
+                <div id="meals-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+                <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i data-lucide="search-x" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800">No surplus meals match your filter</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-4">Try widening your max price or clearing dietary filters.</p>
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700">Reset Filters</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: STORE MAP & MULTI-LOCATION EXPLORER -->
+        <section id="tab-map" class="hidden fade-in space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-1">
+                            <i data-lucide="navigation" class="w-3.5 h-3.5 text-emerald-600"></i> Personalized Map & Store Directory
+                        </span>
+                        <h2 class="text-2xl font-bold text-slate-900">Explore Store Locations</h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Select a venue below to preview its personalized interactive map, pickup hours, and active surplus inventory.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl text-xs font-semibold text-slate-700">
+                        <i data-lucide="compass" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Search Radius:</span>
+                        <select id="map-radius-select" onchange="onRadiusChange(this.value)" class="bg-white px-2 py-1 rounded-xl border border-slate-200 text-xs font-bold focus:outline-none">
+                            <option value="2">2 Miles (5 Stores)</option>
+                            <option value="5">5 Miles (12 Stores)</option>
+                            <option value="10">10 Miles (28 Stores)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="store-pills-bar" class="flex gap-2 overflow-x-auto pb-1 pt-2"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[460px]">
+                    <div class="p-4 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                                <i data-lucide="store" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 id="active-map-store-name" class="font-bold text-sm text-white">Green Leaf Bakery</h3>
+                                <p id="active-map-store-address" class="text-[11px] text-slate-400">428 Market St, San Francisco, CA • 0.4 mi away</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button onclick="openExternalDirections()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 shadow-sm">
+                                <i data-lucide="navigation-2" class="w-3.5 h-3.5"></i> Directions
+                            </button>
+                            <button onclick="toggleStreetViewSim()" id="street-view-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1">
+                                <i data-lucide="layers" class="w-3.5 h-3.5 text-amber-400"></i> <span id="street-view-btn-text">Street View</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 relative w-full h-[400px] lg:h-full min-h-[400px] bg-slate-100">
+                        <iframe 
+                            id="personalized-map-iframe"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.0192!2d-122.3995!3d37.7910!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858064b5956037%3A0xb00dbedb04f365d!2sMarket%20St%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1710000000000" 
+                            class="w-full h-full border-0 absolute inset-0" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="strict-origin-when-cross-origin">
+                        </iframe>
+
+                        <div id="street-view-overlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-md p-6 flex flex-col justify-between text-white fade-in">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-amber-500 text-slate-950 text-xs font-extrabold px-3 py-1 rounded-lg">360° Storefront Preview</span>
+                                <button onclick="toggleStreetViewSim()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+                            </div>
+                            <div class="text-center space-y-2 my-auto">
+                                <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i data-lucide="camera" class="w-8 h-8"></i>
+                                </div>
+                                <h4 id="sv-store-title" class="text-lg font-bold">Green Leaf Bakery Storefront</h4>
+                                <p id="sv-store-desc" class="text-xs text-slate-300 max-w-sm mx-auto">Look for the green awning next to 428 Market St entrance. Pickup counter located at front register.</p>
+                            </div>
+                            <div class="text-center text-[11px] text-slate-400">Tap top right 'X' to return to interactive map</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 max-h-[560px] overflow-y-auto pr-1">
+                    <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider text-slate-500 flex items-center justify-between">
+                        <span>Nearby Rescue Partners</span>
+                        <span id="map-active-count" class="text-xs text-emerald-700 font-bold">5 Active Stores</span>
+                    </h3>
+                    <div id="store-directory-list" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div id="map-venue-inventory" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-600"></i>
+                            <span>Surplus Meals at <span id="venue-inv-title" class="text-emerald-700">Green Leaf Bakery</span></span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Live inventory update for this venue</p>
+                    </div>
+                    <button onclick="switchTab('browse')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline">View All Store Bags →</button>
+                </div>
+
+                <div id="venue-meals-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: MY ORDERS & DIGITAL PICKUP PASS -->
+        <section id="tab-orders" class="hidden fade-in space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">My Surplus Orders & Passes</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Present digital passes at store pickup or request 1-click instant refunds.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="filterOrdersTab('ACTIVE')" id="order-subtab-active" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm">Active Passes</button>
+                    <button onclick="filterOrdersTab('PAST')" id="order-subtab-past" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Past Orders & Refunds</button>
+                </div>
+            </div>
+
+            <div id="orders-list" class="space-y-4"></div>
+        </section>
+
+        <!-- TAB 4: SUSTAINABILITY IMPACT DASHBOARD -->
+        <section id="tab-impact" class="hidden fade-in space-y-6">
+            <div class="bg-gradient-to-br from-emerald-800 to-teal-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl space-y-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700/60 border border-emerald-500/30 text-emerald-200 text-xs font-bold">
+                    <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-400"></i> Your Personal Environmental Record
+                </span>
+                <h2 class="text-3xl font-black text-white">Rescue Metrics & Lifetime Impact</h2>
+                <p class="text-xs sm:text-sm text-emerald-100 max-w-2xl">By purchasing surplus meals through Second Bite, you actively prevent food waste from entering landfills and cut down greenhouse gas emissions.</p>
+            </div>
+
+            <!-- METRICS CARDS -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3">
+                        <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-slate-500 font-semibold uppercase">Total Saved</span>
+                    <p class="text-2xl font-black text-slate-900 mt-1" id="impact-money-saved">$48.50</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3">
+                        <i data-lucide="scale" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-slate-500 font-semibold uppercase">Food Rescued</span>
+                    <p class="text-2xl font-black text-slate-900 mt-1"><span id="impact-kg-rescued">14.2</span> <span class="text-xs font-normal text-slate-500">kg</span></p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center mb-3">
+                        <i data-lucide="cloud-rain" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-slate-500 font-semibold uppercase">CO₂ Offset</span>
+                    <p class="text-2xl font-black text-slate-900 mt-1"><span id="impact-co2-offset">35.5</span> <span class="text-xs font-normal text-slate-500">kg</span></p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-3">
+                        <i data-lucide="droplet" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-slate-500 font-semibold uppercase">Water Saved</span>
+                    <p class="text-2xl font-black text-slate-900 mt-1"><span id="impact-water-saved">3,850</span> <span class="text-xs font-normal text-slate-500">liters</span></p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-900 text-base">Sustainability Badges</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xl">🌱</div>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-900">First Bite Pioneer</h4>
+                            <p class="text-[11px] text-slate-500">Rescued 5+ meals</p>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xl">🥖</div>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-900">Bakery Saver</h4>
+                            <p class="text-[11px] text-slate-500">Saved artisan bread</p>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xl">🏆</div>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-900">Zero Waste Hero</h4>
+                            <p class="text-[11px] text-slate-500">Saved over 10kg food</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: REFUNDS & CUSTOMER SUPPORT -->
+        <section id="tab-support" class="hidden fade-in space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-600"></i> Second Bite Guarantee
+                </span>
+                <h2 class="text-2xl font-bold text-slate-900">Reliable Customer Support & Instant Refunds</h2>
+                <p class="text-xs sm:text-sm text-slate-500">If a venue closes early, runs out of items, or food quality falls short, we guarantee a 1-click automated refund with zero hassle.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-slate-900">Full Meal Transparency</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Unlike traditional mystery bag apps, Second Bite requires merchants to detail exact items (e.g. 2 Croissants, 1 Sourdough Loaf) so you know what you buy before checkout.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-slate-900">1-Click Instant Refund Policy</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Simply open your active order card, tap 'Request Instant Refund', select your issue, and your funds are immediately credited back to your wallet.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SHOPPING CART SLIDE-OVER DRAWER -->
+    <div id="cart-drawer-overlay" onclick="toggleCartDrawer(false)" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl transition-transform transform translate-x-full flex flex-col">
+        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-400"></i>
+                <h3 class="font-bold text-base">Your Rescue Bag</h3>
+            </div>
+            <button onclick="toggleCartDrawer(false)" class="text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50"></div>
+
+        <div class="p-4 bg-white border-t border-slate-200 space-y-3">
+            <div class="space-y-1 text-xs">
+                <div class="flex justify-between text-slate-500">
+                    <span>Regular Retail Price:</span>
+                    <span id="cart-original-total" class="line-through">$0.00</span>
+                </div>
+                <div class="flex justify-between text-emerald-700 font-semibold">
+                    <span>Surplus Savings:</span>
+                    <span id="cart-discount-val">-$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-900 text-base font-black pt-1 border-t border-slate-100">
+                    <span>Total Discounted Price:</span>
+                    <span id="cart-final-total" class="text-emerald-700">$0.00</span>
+                </div>
+            </div>
+
+            <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl text-[11px] text-emerald-800 flex items-center gap-2">
+                <i data-lucide="leaf" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+                <span id="cart-impact-text">Add meals to save food and reduce emissions!</span>
+            </div>
+
+            <button onclick="openCheckoutModal()" id="cart-checkout-btn" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md transition disabled:opacity-50">
+                Proceed to Digital Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 1: QUICK VIEW (FULL TRANSPARENCY) -->
+    <div id="quickview-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden fade-in my-6">
+            <div class="relative h-48 bg-slate-100">
+                <img id="qv-image" src="" class="w-full h-full object-cover">
+                <button onclick="closeQuickViewModal()" class="absolute top-3 right-3 bg-slate-900/60 text-white p-2 rounded-full hover:bg-slate-900">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+                <span id="qv-category" class="absolute bottom-3 left-3 bg-emerald-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider"></span>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div>
+                    <h3 id="qv-title" class="text-xl font-bold text-slate-900"></h3>
+                    <p id="qv-store" class="text-xs font-semibold text-emerald-700 mt-0.5"></p>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="eye" class="w-4 h-4 text-emerald-600"></i> Full Meal Transparency Breakdown:
+                    </h4>
+                    <ul id="qv-items-list" class="text-xs text-slate-700 space-y-1 list-disc list-inside pl-1 font-medium"></ul>
+                </div>
+
+                <div class="text-xs text-slate-500 space-y-1">
+                    <p><strong>Pickup Time:</strong> <span id="qv-pickup" class="text-slate-800 font-semibold"></span></p>
+                    <p><strong>Distance:</strong> <span id="qv-distance" class="text-slate-800"></span></p>
+                    <p><strong>Allergens & Disclosures:</strong> <span id="qv-allergens" class="text-slate-700 font-medium"></span></p>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <div>
+                        <span class="text-xs text-slate-400 line-through block" id="qv-original-price"></span>
+                        <span class="text-2xl font-black text-emerald-700" id="qv-discount-price"></span>
+                    </div>
+
+                    <button id="qv-add-btn" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add to Rescue Bag
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CHECKOUT MODAL -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden fade-in my-6">
+            <div class="bg-emerald-700 p-5 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i> Checkout & Pickup Pass
+                </h3>
+                <button onclick="closeCheckoutModal()" class="text-emerald-200 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span>Items:</span>
+                        <strong id="co-items-count">1 item</strong>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span>Discounted Total:</span>
+                        <strong id="co-subtotal" class="text-emerald-700">$0.00</strong>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span>Instant Refund Protection:</span>
+                        <strong class="text-emerald-700">FREE / Included</strong>
+                    </div>
+                    <div class="flex justify-between py-1 text-sm font-black pt-2">
+                        <span>Amount Due:</span>
+                        <strong id="co-total" class="text-emerald-700">$0.00</strong>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+                    <p class="font-bold text-slate-800">Payment Simulation:</p>
+                    <p>No real charge will be made. Generating your digital pass will save this order to your active account.</p>
+                </div>
+
+                <button onclick="processOrderCheckout()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="qr-code" class="w-4 h-4"></i> Confirm & Generate Digital Pass
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ALLERGY ALERT TO KITCHEN QUEUE -->
+    <div id="allergy-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden fade-in my-6 border-t-4 border-red-500">
+            <div class="bg-red-600 p-5 text-white relative">
+                <button onclick="closeAllergyModal()" class="absolute top-4 right-4 text-red-200 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                    <div>
+                        <h3 class="text-lg font-bold">Store Kitchen Allergy Alert</h3>
+                        <p class="text-xs text-red-100">Direct Notification to <span id="allergy-store-name" class="font-bold underline">Store Staff</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="bg-red-50 border border-red-200 p-3 rounded-xl space-y-1">
+                    <div class="flex items-center justify-between text-xs text-red-900 font-bold">
+                        <span id="allergy-venue-address">📍 Store Address</span>
+                        <span id="allergy-queue-id" class="font-mono bg-red-200 text-red-900 px-2 py-0.5 rounded text-[10px]">KQ-0000</span>
+                    </div>
+                    <p class="text-[11px] text-red-700">Alert will be pinned directly to this venue's active order screen.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-700 block">Select Primary Allergens:</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                            <input type="checkbox" value="Peanuts & Tree Nuts" class="allergy-cb accent-red-600 w-4 h-4">
+                            <span>🥜 Peanuts / Nuts</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                            <input type="checkbox" value="Dairy & Lactose" class="allergy-cb accent-red-600 w-4 h-4">
+                            <span>🥛 Dairy / Lactose</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                            <input type="checkbox" value="Gluten & Wheat" class="allergy-cb accent-red-600 w-4 h-4">
+                            <span>🌾 Gluten / Wheat</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                            <input type="checkbox" value="Shellfish & Fish" class="allergy-cb accent-red-600 w-4 h-4">
+                            <span>🦐 Shellfish / Fish</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">Additional Restrictions / Notes:</label>
+                    <textarea id="allergy-custom-note" rows="2" placeholder="e.g. Severe sesame sensitivity..." class="w-full p-2.5 rounded-xl border border-slate-300 text-xs bg-slate-50 focus:ring-2 focus:ring-red-500"></textarea>
+                </div>
+
+                <button onclick="sendAllergyAlert()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> Dispatch Allergy Alert to Kitchen Queue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: INSTANT REFUND WORKFLOW -->
+    <div id="refund-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden fade-in my-6">
+            <div class="bg-amber-500 p-5 text-white relative">
+                <button onclick="closeRefundModal()" class="absolute top-4 right-4 text-amber-100 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                    <h3 class="text-lg font-bold">Instant Refund Request</h3>
+                </div>
+                <p class="text-xs text-amber-100 mt-0.5">Order <span id="ref-order-id" class="font-mono font-bold">#SB-0000</span></p>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-700 block">Select Issue Reason:</label>
+                    <select id="refund-reason-select" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium bg-slate-50 focus:ring-2 focus:ring-amber-500">
+                        <option value="STORE_CANCELLED">Store was closed or ran out of surplus early</option>
+                        <option value="QUALITY_ISSUE">Food item quality did not meet standards</option>
+                        <option value="MISSING_ITEMS">Meal contents differed from listed transparency</option>
+                        <option value="SCHEDULE_CONFLICT">Could not make pickup window</option>
+                    </select>
+                </div>
+
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
+                    <span>Estimated Refund Credit:</span>
+                    <strong class="text-emerald-700 text-sm font-black" id="ref-refund-amount">$0.00</strong>
+                </div>
+
+                <button onclick="submitInstantRefund()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4"></i> Submit & Claim Instant Refund
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING SUPPORT CHAT WIDGET -->
+    <div id="chat-widget-container" class="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-40">
+        <button onclick="toggleChatBox()" class="bg-gradient-to-tr from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white p-3.5 rounded-full shadow-2xl flex items-center justify-center gap-2 border-2 border-white transition transform hover:scale-105">
+            <i data-lucide="message-square" class="w-6 h-6"></i>
+            <span class="hidden sm:inline text-xs font-bold pr-1">Support Assistant</span>
+        </button>
+
+        <div id="chat-box" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col fade-in max-h-[500px]">
+            <div class="bg-slate-900 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <div>
+                        <h4 class="font-bold text-xs">Second Bite Support Bot</h4>
+                        <p class="text-[10px] text-slate-400">Instant Automated Assistance</p>
+                    </div>
+                </div>
+                <button onclick="toggleChatBox()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+
+            <div id="chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto text-xs max-h-72 bg-slate-50">
+                <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm max-w-[85%]">
+                    👋 Hi there! Need help with your surplus meal pickup, transparency breakdown, or instant refunds?
+                </div>
+            </div>
+
+            <div class="p-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto text-[11px]">
+                <button onclick="sendChatMessage('How do instant refunds work?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-full whitespace-nowrap text-slate-700">Refund Policy?</button>
+                <button onclick="sendChatMessage('Can I see what is inside the bag?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-full whitespace-nowrap text-slate-700">Meal Contents?</button>
+            </div>
+
+            <form onsubmit="handleChatSubmit(event)" class="p-2 border-t border-slate-200 flex gap-2 bg-white">
+                <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <button type="submit" class="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"><i data-lucide="send" class="w-4 h-4"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CUSTOM TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-notification" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 max-w-sm bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700 flex items-start gap-3 pointer-events-none">
+        <div id="toast-icon"></div>
+        <div>
+            <h4 id="toast-title" class="text-xs font-bold text-white">Notification</h4>
+            <p id="toast-msg" class="text-[11px] text-slate-300 mt-0.5"></p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Store Data
+        const STORES_DATA = [
+            {
+                id: 'store-1',
+                name: 'Green Leaf Bakery',
+                category: 'Artisan Bakery',
+                address: '428 Market St, San Francisco, CA',
+                phone: '(415) 892-3401',
+                distanceMi: 0.4,
+                pickupWindow: 'Today, 5:30 PM - 7:00 PM',
+                ecoScore: '99% Zero Waste Audit',
+                surplusCount: 3,
+                mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.0192!2d-122.3995!3d37.7910!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858064b5956037%3A0xb00dbedb04f365d!2sMarket%20St%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1710000000000',
+                directionsUrl: 'https://maps.google.com/?q=428+Market+St+San+Francisco+CA'
+            },
+            {
+                id: 'store-2',
+                name: 'Urban Greens Bistro',
+                category: 'Healthy Bistro',
+                address: '105 Montgomery St, San Francisco, CA',
+                phone: '(415) 771-0024',
+                distanceMi: 0.8,
+                pickupWindow: 'Today, 7:00 PM - 8:30 PM',
+                ecoScore: '96% Organic Certified',
+                surplusCount: 2,
+                mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.0500!2d-122.4035!3d37.7905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808a05c3313d%3A0x6b772c83d65b9bdc!2sMontgomery%20St%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1710000000001',
+                directionsUrl: 'https://maps.google.com/?q=105+Montgomery+St+San+Francisco+CA'
+            },
+            {
+                id: 'store-3',
+                name: 'Daily Organic Market',
+                category: 'Grocery & Produce',
+                address: '890 Howard St, San Francisco, CA',
+                phone: '(415) 612-9980',
+                distanceMi: 1.2,
+                pickupWindow: 'Today, 6:00 PM - 8:00 PM',
+                ecoScore: '98% Plastic-Free',
+                surplusCount: 5,
+                mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.3000!2d-122.4045!3d37.7830!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858084a441df25%3A0x4a1168f8983e20bf!2sHoward%20St%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1710000000002',
+                directionsUrl: 'https://maps.google.com/?q=890+Howard+St+San+Francisco+CA'
+            },
+            {
+                id: 'store-4',
+                name: 'Harbor View Deli',
+                category: 'Gourmet Deli',
+                address: '200 Embarcadero, San Francisco, CA',
+                phone: '(415) 391-4455',
+                distanceMi: 1.4,
+                pickupWindow: 'Today, 5:00 PM - 6:30 PM',
+                ecoScore: '100% Compostable Packaging',
+                surplusCount: 4,
+                mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3152.9000!2d-122.3930!3d37.7950!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858066e4a29a39%3A0x5a180fbfd7eb9c23!2sThe%20Embarcadero%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1710000000003',
+                directionsUrl: 'https://maps.google.com/?q=200+Embarcadero+San+Francisco+CA'
+            },
+            {
+                id: 'store-5',
+                name: 'Westside Pizzeria',
+                category: 'Italian Bistro',
+                address: '550 Mission St, San Francisco, CA',
+                phone: '(415) 543-1120',
+                distanceMi: 1.8,
+                pickupWindow: 'Today, 8:30 PM - 9:30 PM',
+                ecoScore: '95% Solar Powered Oven',
+                surplusCount: 2,
+                mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.2000!2d-122.3990!3d37.7880!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858079f228d48d%3A0x1d13f9c6d4825944!2sMission%20St%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1710000000004',
+                directionsUrl: 'https://maps.google.com/?q=550+Mission+St+San+Francisco+CA'
+            }
+        ];
+
+        // Surplus Meals Data
+        const MEALS_DATA = [
+            {
+                id: 'meal-1',
+                storeId: 'store-1',
+                storeName: 'Green Leaf Bakery',
+                category: 'Bakery & Pastry',
+                title: 'Artisan Pastry & Sourdough Box',
+                contents: ['2x Almond Croissants', '1x Organic Sourdough Loaf', '2x Cinnamon Rolls'],
+                allergens: 'Contains Wheat, Gluten, Almonds, Milk, Eggs.',
+                originalPrice: 22.00,
+                discountPrice: 6.99,
+                pickupWindow: 'Today, 5:30 PM - 7:00 PM',
+                distanceMi: 0.4,
+                rating: 4.9,
+                stockLeft: 3,
+                dietary: ['VEGETARIAN'],
+                image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'meal-2',
+                storeId: 'store-2',
+                storeName: 'Urban Greens Bistro',
+                category: 'Prepared Meals',
+                title: 'Gourmet Harvest Grain Bowl & Salad',
+                contents: ['1x Roasted Quinoa & Sweet Potato Bowl', '1x Avocado Cobb Salad', '1x Fresh Green Juice'],
+                allergens: 'Contains Sesame. Gluten-free recipe.',
+                originalPrice: 26.00,
+                discountPrice: 7.49,
+                pickupWindow: 'Today, 7:00 PM - 8:30 PM',
+                distanceMi: 0.8,
+                rating: 4.8,
+                stockLeft: 1,
+                dietary: ['VEGAN', 'GLUTEN_FREE'],
+                image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'meal-3',
+                storeId: 'store-3',
+                storeName: 'Daily Organic Market',
+                category: 'Grocery Bag',
+                title: 'Fresh Produce & Dairy Surplus Bag',
+                contents: ['1.5kg Heirloom Tomatoes', '1x Organic Strawberries', '1x Artisanal Cheddar Cheese'],
+                allergens: 'Contains Dairy.',
+                originalPrice: 30.00,
+                discountPrice: 8.99,
+                pickupWindow: 'Today, 6:00 PM - 8:00 PM',
+                distanceMi: 1.2,
+                rating: 4.7,
+                stockLeft: 5,
+                dietary: ['VEGETARIAN', 'GLUTEN_FREE'],
+                image: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'meal-4',
+                storeId: 'store-5',
+                storeName: 'Westside Pizzeria',
+                category: 'Pizza & Bistro',
+                title: 'Italian Evening Feast Box',
+                contents: ['2x Margherita Pizza Slices', '1x Penne Arrabbiata', '4x Garlic Parmesan Knots'],
+                allergens: 'Contains Wheat, Dairy, Garlic.',
+                originalPrice: 24.00,
+                discountPrice: 7.99,
+                pickupWindow: 'Today, 8:30 PM - 9:30 PM',
+                distanceMi: 1.8,
+                rating: 4.9,
+                stockLeft: 2,
+                dietary: ['VEGETARIAN'],
+                image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'meal-5',
+                storeId: 'store-4',
+                storeName: 'Harbor View Deli',
+                category: 'Café & Treats',
+                title: 'Specialty Deli & Sandwich Rescue Bag',
+                contents: ['1x Roasted Turkey Panini', '1x Mediterranean Hummus Bowl', '1x Fresh Lemonade'],
+                allergens: 'Contains Wheat, Sesame.',
+                originalPrice: 21.00,
+                discountPrice: 6.49,
+                pickupWindow: 'Today, 5:00 PM - 6:30 PM',
+                distanceMi: 1.4,
+                rating: 4.9,
+                stockLeft: 4,
+                dietary: ['VEGETARIAN'],
+                image: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                id: 'meal-6',
+                storeId: 'store-2',
+                storeName: 'Urban Greens Bistro',
+                category: 'Prepared Meals',
+                title: 'Plant-Based Superfood Rescue Pack',
+                contents: ['1x Tofu Tikka Masala Rice Bowl', '1x Vegan Chia Berry Pudding', '1x Ginger Detox Shot'],
+                allergens: 'Contains Soy. Vegan & Gluten-Free certified.',
+                originalPrice: 25.00,
+                discountPrice: 7.99,
+                pickupWindow: 'Today, 7:00 PM - 8:30 PM',
+                distanceMi: 0.8,
+                rating: 4.8,
+                stockLeft: 2,
+                dietary: ['VEGAN', 'GLUTEN_FREE'],
+                image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80'
+            }
+        ];
+
+        // Global State
+        let activeTab = 'browse';
+        let activeStoreId = 'store-1';
+        let cart = [];
+        let activeDietFilters = [];
+        let activeOrders = [
+            {
+                orderId: 'SB-9842',
+                storeName: 'Green Leaf Bakery',
+                title: 'Artisan Pastry & Sourdough Box',
+                itemsCount: 1,
+                totalPaid: 6.99,
+                originalValue: 22.00,
+                pickupWindow: 'Today, 5:30 PM - 7:00 PM',
+                status: 'READY_FOR_PICKUP',
+                date: 'Today',
+                qrCodeSeed: 'PASS-SB9842-GLB',
+                allergyAlert: null
+            }
+        ];
+        let pastOrders = [];
+        let userStats = {
+            moneySaved: 48.50,
+            kgRescued: 14.2,
+            mealsCount: 8,
+            co2Offset: 35.5,
+            waterSaved: 3850
+        };
+        let activeAllergyTargetStore = 'Green Leaf Bakery';
+
+        // Helper: Lucide Safety wrapper
+        function safeLucide() {
+            if (window.lucide && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        }
+
+        // Notification System (No alert alerts)
+        function showNotification(title, msg, type = 'success') {
+            const toast = document.getElementById('toast-notification');
+            const titleEl = document.getElementById('toast-title');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+
+            if (!toast) return;
+
+            titleEl.textContent = title;
+            msgEl.textContent = msg;
+
+            if (type === 'alert' || type === 'error') {
+                iconEl.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i>`;
+            } else if (type === 'refund') {
+                iconEl.innerHTML = `<i data-lucide="zap" class="w-5 h-5 text-amber-400"></i>`;
+            } else {
+                iconEl.innerHTML = `<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>`;
+            }
+
+            safeLucide();
+            toast.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3500);
+        }
+
+        // DOM Loaded Init
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMealCards(MEALS_DATA);
+            renderMapTab();
+            renderOrdersList('ACTIVE');
+            updateCartUI();
+            updateImpactDashboard();
+            safeLucide();
+        });
+
+        // 1. TAB SWITCHING LOGIC
+        function switchTab(tabId) {
+            activeTab = tabId;
+            const tabs = ['browse', 'map', 'orders', 'impact', 'support'];
+            
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                if (sec) sec.classList.add('hidden');
+                
+                const btnDesk = document.getElementById(`nav-btn-${t}`);
+                if (btnDesk) {
+                    if (t === tabId) {
+                        btnDesk.className = "px-3 py-1.5 rounded-lg transition-all text-emerald-700 bg-white shadow-sm font-semibold";
+                    } else {
+                        btnDesk.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900";
+                    }
+                }
+
+                const btnMob = document.getElementById(`mob-nav-${t}`);
+                if (btnMob) {
+                    if (t === tabId) {
+                        btnMob.className = "flex flex-col items-center gap-0.5 text-xs text-emerald-600 font-semibold";
+                    } else {
+                        btnMob.className = "flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-emerald-600";
+                    }
+                }
+            });
+
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            if (tabId === 'map') renderMapTab();
+            if (tabId === 'orders') renderOrdersList('ACTIVE');
+            
+            safeLucide();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 2. MEAL CARD RENDERING & DISCOVERY
+        function renderMealCards(meals) {
+            const container = document.getElementById('meals-grid');
+            const emptyState = document.getElementById('empty-state');
+            const badge = document.getElementById('meals-count-badge');
+
+            if (badge) badge.textContent = `${meals.length} Available`;
+
+            if (meals.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            container.innerHTML = meals.map(meal => {
+                const discountPct = Math.round(((meal.originalPrice - meal.discountPrice) / meal.originalPrice) * 100);
+                
+                return `
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                    <div>
+                        <div class="relative h-44 overflow-hidden bg-slate-100">
+                            <img src="${meal.image}" alt="${meal.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/600x400/059669/FFFFFF?text=Surplus+Meal'">
+                            
+                            <div class="absolute top-3 left-3 bg-emerald-700 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                                <i data-lucide="tag" class="w-3 h-3"></i> ${discountPct}% OFF
+                            </div>
+                            
+                            <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-slate-800 text-[11px] font-bold px-2 py-0.5 rounded-full shadow-md">
+                                📍 ${meal.distanceMi} mi
+                            </div>
+
+                            <span class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
+                                ${meal.category}
+                            </span>
+                        </div>
+
+                        <div class="p-5 space-y-3">
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base leading-snug group-hover:text-emerald-700 transition">${meal.title}</h3>
+                                <p class="text-xs font-semibold text-emerald-700 mt-0.5 flex items-center gap-1">
+                                    <i data-lucide="store" class="w-3.5 h-3.5"></i> ${meal.storeName}
+                                </p>
+                            </div>
+
+                            <!-- TRANSPARENCY BREAKDOWN BOX -->
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                    <i data-lucide="eye" class="w-3 h-3 text-emerald-600"></i> Transparency Breakdown:
+                                </span>
+                                <div class="flex flex-wrap gap-1">
+                                    ${meal.contents.map(item => `<span class="bg-white border border-slate-200 text-slate-700 text-[11px] px-2 py-0.5 rounded-md font-medium">${item}</span>`).join('')}
+                                </div>
+                            </div>
+
+                            <div class="text-[11px] text-slate-500 flex items-center justify-between pt-1">
+                                <span><i data-lucide="clock" class="w-3.5 h-3.5 inline text-amber-500"></i> ${meal.pickupWindow}</span>
+                                <span class="text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded">${meal.stockLeft} left</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD FOOTER ACTIONS -->
+                    <div class="px-5 pb-5 pt-2 flex items-center justify-between border-t border-slate-100">
+                        <div>
+                            <span class="text-xs text-slate-400 line-through block">$${meal.originalPrice.toFixed(2)}</span>
+                            <span class="text-xl font-black text-emerald-700">$${meal.discountPrice.toFixed(2)}</span>
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="openQuickView('${meal.id}')" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                                <i data-lucide="info" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="addToCart('${meal.id}')" class="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            safeLucide();
+        }
+
+        // 3. MULTI-LOCATION & MAP LOGIC
+        function onHeaderLocationChange(val) {
+            document.getElementById('store-location-filter').value = val;
+            if (val !== 'ALL') {
+                selectStoreLocation(val);
+            } else {
+                applyFilters();
+            }
+        }
+
+        function selectStoreLocation(storeId) {
+            activeStoreId = storeId;
+            const store = STORES_DATA.find(s => s.id === storeId) || STORES_DATA[0];
+
+            document.getElementById('header-location-select').value = storeId;
+            document.getElementById('store-location-filter').value = storeId;
+
+            const mapIframe = document.getElementById('personalized-map-iframe');
+            if (mapIframe) mapIframe.src = store.mapEmbedUrl;
+
+            document.getElementById('active-map-store-name').textContent = store.name;
+            document.getElementById('active-map-store-address').textContent = `${store.address} • ${store.distanceMi} mi away`;
+            document.getElementById('sv-store-title').textContent = `${store.name} Storefront`;
+            document.getElementById('sv-store-desc').textContent = `Located at ${store.address}. Direct pickup window: ${store.pickupWindow}. Phone: ${store.phone}`;
+
+            renderMapTab();
+            applyFilters();
+        }
+
+        function renderMapTab() {
+            const pillsBar = document.getElementById('store-pills-bar');
+            if (pillsBar) {
+                pillsBar.innerHTML = STORES_DATA.map(st => {
+                    const isActive = st.id === activeStoreId;
+                    return `
+                        <button onclick="selectStoreLocation('${st.id}')" class="flex-shrink-0 px-3.5 py-2 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 ${isActive ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}">
+                            <i data-lucide="store" class="w-3.5 h-3.5"></i>
+                            <span>${st.name}</span>
+                            <span class="text-[10px] opacity-80">(${st.surplusCount})</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            const directoryList = document.getElementById('store-directory-list');
+            if (directoryList) {
+                directoryList.innerHTML = STORES_DATA.map(st => {
+                    const isActive = st.id === activeStoreId;
+                    return `
+                        <div class="bg-white p-4 rounded-2xl border transition ${isActive ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'border-slate-200 hover:border-slate-300 shadow-sm'} space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">${st.name}</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">${st.address}</p>
+                                </div>
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded flex-shrink-0">${st.distanceMi} mi</span>
+                            </div>
+
+                            <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                <p class="flex justify-between"><span>Pickup:</span> <strong>${st.pickupWindow}</strong></p>
+                                <p class="flex justify-between"><span>Audit:</span> <strong class="text-emerald-700">🌱 ${st.ecoScore}</strong></p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button onclick="selectStoreLocation('${st.id}')" class="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition">
+                                    Show Map
+                                </button>
+                                <button onclick="openAllergyModal('${st.name}', '${st.id}')" class="py-1.5 px-3 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-bold rounded-xl transition flex items-center gap-1">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-600"></i> Alert
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const currentStore = STORES_DATA.find(s => s.id === activeStoreId) || STORES_DATA[0];
+            const venueInvTitle = document.getElementById('venue-inv-title');
+            if (venueInvTitle) venueInvTitle.textContent = currentStore.name;
+
+            const venueGrid = document.getElementById('venue-meals-grid');
+            if (venueGrid) {
+                const venueMeals = MEALS_DATA.filter(m => m.storeId === activeStoreId);
+                if (venueMeals.length === 0) {
+                    venueGrid.innerHTML = `<p class="text-xs text-slate-400 py-4 col-span-3">No active surplus meals at this venue right now.</p>`;
+                } else {
+                    venueGrid.innerHTML = venueMeals.map(meal => `
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <img src="${meal.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://placehold.co/100x100/059669/FFFFFF?text=Meal'">
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 leading-tight">${meal.title}</h4>
+                                    <span class="text-xs font-black text-emerald-700">$${meal.discountPrice.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <button onclick="addToCart('${meal.id}')" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition">
+                                + Add
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            safeLucide();
+        }
+
+        function openExternalDirections() {
+            const store = STORES_DATA.find(s => s.id === activeStoreId);
+            if (store && store.directionsUrl) window.open(store.directionsUrl, '_blank');
+        }
+
+        function toggleStreetViewSim() {
+            const overlay = document.getElementById('street-view-overlay');
+            const btnText = document.getElementById('street-view-btn-text');
+            if (overlay.classList.contains('hidden')) {
+                overlay.classList.remove('hidden');
+                btnText.textContent = 'Exit View';
+            } else {
+                overlay.classList.add('hidden');
+                btnText.textContent = 'Street View';
+            }
+        }
+
+        function onRadiusChange(miles) {
+            document.getElementById('map-active-count').textContent = `${miles == '2' ? '5' : miles == '5' ? '12' : '28'} Active Stores`;
+        }
+
+        // 4. FILTER & SEARCH HANDLERS
+        function applyFilters() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const category = document.getElementById('category-filter').value;
+            const storeLoc = document.getElementById('store-location-filter').value;
+            const sort = document.getElementById('sort-filter').value;
+            const maxPrice = parseFloat(document.getElementById('price-slider').value);
+
+            let filtered = MEALS_DATA.filter(meal => {
+                const matchesQuery = meal.title.toLowerCase().includes(query) ||
+                                     meal.storeName.toLowerCase().includes(query) ||
+                                     meal.contents.some(c => c.toLowerCase().includes(query));
+                const matchesCategory = category === 'ALL' || meal.category === category;
+                const matchesStoreLoc = storeLoc === 'ALL' || meal.storeId === storeLoc;
+                const matchesPrice = meal.discountPrice <= maxPrice;
+                const matchesDiet = activeDietFilters.length === 0 || 
+                                    activeDietFilters.every(diet => meal.dietary.includes(diet));
+
+                return matchesQuery && matchesCategory && matchesStoreLoc && matchesPrice && matchesDiet;
+            });
+
+            if (sort === 'DISTANCE') filtered.sort((a, b) => a.distanceMi - b.distanceMi);
+            if (sort === 'PRICE_LOW') filtered.sort((a, b) => a.discountPrice - b.discountPrice);
+            if (sort === 'DISCOUNT') {
+                filtered.sort((a, b) => {
+                    const discA = (a.originalPrice - a.discountPrice) / a.originalPrice;
+                    const discB = (b.originalPrice - b.discountPrice) / b.originalPrice;
+                    return discB - discA;
+                });
+            }
+            if (sort === 'RATING') filtered.sort((a, b) => b.rating - a.rating);
+
+            renderMealCards(filtered);
+        }
+
+        function toggleDietFilter(diet) {
+            const btn = document.getElementById(`diet-btn-${diet}`);
+            if (activeDietFilters.includes(diet)) {
+                activeDietFilters = activeDietFilters.filter(d => d !== diet);
+                btn.className = "diet-chip px-3 py-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:border-emerald-500 transition";
+            } else {
+                activeDietFilters.push(diet);
+                btn.className = "diet-chip px-3 py-1 rounded-full bg-emerald-600 text-white border border-emerald-600 text-xs font-bold transition shadow-sm";
+            }
+            applyFilters();
+        }
+
+        function updatePriceSlider(val) {
+            document.getElementById('price-slider-val').textContent = `$${parseFloat(val).toFixed(2)}`;
+            applyFilters();
+        }
+
+        function resetFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('category-filter').value = 'ALL';
+            document.getElementById('store-location-filter').value = 'ALL';
+            document.getElementById('sort-filter').value = 'DISTANCE';
+            document.getElementById('price-slider').value = '12';
+            document.getElementById('price-slider-val').textContent = '$12.00';
+            activeDietFilters = [];
+            document.querySelectorAll('.diet-chip').forEach(btn => {
+                btn.className = "diet-chip px-3 py-1 rounded-full border border-slate-200 text-xs font-medium text-slate-600 hover:border-emerald-500 transition";
+            });
+            applyFilters();
+        }
+
+        // 5. QUICK VIEW MODAL
+        function openQuickView(mealId) {
+            const meal = MEALS_DATA.find(m => m.id === mealId);
+            if (!meal) return;
+
+            document.getElementById('qv-image').src = meal.image;
+            document.getElementById('qv-category').textContent = meal.category;
+            document.getElementById('qv-title').textContent = meal.title;
+            document.getElementById('qv-store').textContent = meal.storeName;
+            document.getElementById('qv-pickup').textContent = meal.pickupWindow;
+            document.getElementById('qv-distance').textContent = `${meal.distanceMi} miles away`;
+            document.getElementById('qv-allergens').textContent = meal.allergens;
+            document.getElementById('qv-original-price').textContent = `$${meal.originalPrice.toFixed(2)}`;
+            document.getElementById('qv-discount-price').textContent = `$${meal.discountPrice.toFixed(2)}`;
+
+            const itemsList = document.getElementById('qv-items-list');
+            itemsList.innerHTML = meal.contents.map(item => `<li>${item}</li>`).join('');
+
+            const addBtn = document.getElementById('qv-add-btn');
+            addBtn.onclick = () => {
+                addToCart(meal.id);
+                closeQuickViewModal();
+            };
+
+            document.getElementById('quickview-modal').classList.remove('hidden');
+            safeLucide();
+        }
+
+        function closeQuickViewModal() {
+            document.getElementById('quickview-modal').classList.add('hidden');
+        }
+
+        // 6. SHOPPING CART LOGIC
+        function addToCart(mealId) {
+            const meal = MEALS_DATA.find(m => m.id === mealId);
+            if (!meal) return;
+
+            const existing = cart.find(item => item.meal.id === mealId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ meal: meal, quantity: 1 });
+            }
+
+            updateCartUI();
+            toggleCartDrawer(true);
+            showNotification('Added to Bag', `${meal.title} added to your surplus bag.`);
+        }
+
+        function updateCartQuantity(mealId, delta) {
+            const item = cart.find(i => i.meal.id === mealId);
+            if (!item) return;
+
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart = cart.filter(i => i.meal.id !== mealId);
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const badge = document.getElementById('cart-count-badge');
+            const checkoutBtn = document.getElementById('cart-checkout-btn');
+
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if (badge) badge.textContent = totalItems;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i data-lucide="shopping-bag" class="w-12 h-12 mx-auto mb-2 opacity-40"></i>
+                        <p class="text-sm font-semibold text-slate-600">Your bag is empty</p>
+                        <p class="text-xs mt-1">Add surplus meals to save food and money!</p>
+                    </div>
+                `;
+                document.getElementById('cart-original-total').textContent = '$0.00';
+                document.getElementById('cart-discount-val').textContent = '-$0.00';
+                document.getElementById('cart-final-total').textContent = '$0.00';
+                if (checkoutBtn) checkoutBtn.disabled = true;
+                safeLucide();
+                return;
+            }
+
+            if (checkoutBtn) checkoutBtn.disabled = false;
+
+            let originalSum = 0;
+            let discountSum = 0;
+
+            container.innerHTML = cart.map(item => {
+                const itemOrig = item.meal.originalPrice * item.quantity;
+                const itemDisc = item.meal.discountPrice * item.quantity;
+                originalSum += itemOrig;
+                discountSum += itemDisc;
+
+                return `
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <img src="${item.meal.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://placehold.co/100x100/059669/FFFFFF?text=Meal'">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900 leading-tight">${item.meal.title}</h4>
+                            <p class="text-[11px] text-slate-500">${item.meal.storeName}</p>
+                            <span class="text-xs font-black text-emerald-700">$${item.meal.discountPrice.toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+                        <button onclick="updateCartQuantity('${item.meal.id}', -1)" class="w-6 h-6 rounded-lg bg-white text-slate-700 font-bold text-xs flex items-center justify-center hover:bg-slate-200">-</button>
+                        <span class="text-xs font-bold px-1">${item.quantity}</span>
+                        <button onclick="updateCartQuantity('${item.meal.id}', 1)" class="w-6 h-6 rounded-lg bg-white text-slate-700 font-bold text-xs flex items-center justify-center hover:bg-slate-200">+</button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            const totalSaved = originalSum - discountSum;
+            document.getElementById('cart-original-total').textContent = `$${originalSum.toFixed(2)}`;
+            document.getElementById('cart-discount-val').textContent = `-$${totalSaved.toFixed(2)}`;
+            document.getElementById('cart-final-total').textContent = `$${discountSum.toFixed(2)}`;
+            document.getElementById('cart-impact-text').innerHTML = `You save <strong>$${totalSaved.toFixed(2)}</strong> and prevent ~<strong>${(totalItems * 1.5).toFixed(1)} kg</strong> of emissions!`;
+
+            safeLucide();
+        }
+
+        function toggleCartDrawer(open) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+
+            if (open) {
+                overlay.classList.remove('hidden');
+                drawer.classList.remove('translate-x-full');
+            } else {
+                overlay.classList.add('hidden');
+                drawer.classList.add('translate-x-full');
+            }
+        }
+
+        // 7. CHECKOUT & PASS CREATION
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            toggleCartDrawer(false);
+
+            const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0);
+            const totalPaid = cart.reduce((sum, i) => sum + (i.meal.discountPrice * i.quantity), 0);
+
+            document.getElementById('co-items-count').textContent = `${totalItems} item(s)`;
+            document.getElementById('co-subtotal').textContent = `$${totalPaid.toFixed(2)}`;
+            document.getElementById('co-total').textContent = `$${totalPaid.toFixed(2)}`;
+
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            safeLucide();
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function processOrderCheckout() {
+            const totalPaid = cart.reduce((sum, i) => sum + (i.meal.discountPrice * i.quantity), 0);
+            const originalVal = cart.reduce((sum, i) => sum + (i.meal.originalPrice * i.quantity), 0);
+            const primaryItem = cart[0].meal;
+            const newOrderId = `SB-${Math.floor(1000 + Math.random() * 9000)}`;
+
+            const newOrder = {
+                orderId: newOrderId,
+                storeName: primaryItem.storeName,
+                title: primaryItem.title,
+                itemsCount: cart.length,
+                totalPaid: totalPaid,
+                originalValue: originalVal,
+                pickupWindow: primaryItem.pickupWindow,
+                status: 'READY_FOR_PICKUP',
+                date: 'Just Now',
+                qrCodeSeed: `PASS-${newOrderId}-SECONDBITE`,
+                allergyAlert: null
+            };
+
+            activeOrders.unshift(newOrder);
+
+            const saved = originalVal - totalPaid;
+            userStats.moneySaved += saved;
+            userStats.kgRescued += (cart.length * 1.5);
+            userStats.mealsCount += cart.length;
+            userStats.co2Offset += (cart.length * 3.8);
+
+            updateImpactDashboard();
+
+            cart = [];
+            updateCartUI();
+            closeCheckoutModal();
+
+            renderOrdersList('ACTIVE');
+            switchTab('orders');
+
+            showNotification('Pass Generated!', `Digital Pickup Pass created for Order #${newOrderId}.`);
+        }
+
+        // 8. ORDERS & REFUND LOGIC
+        function filterOrdersTab(type) {
+            const activeBtn = document.getElementById('order-subtab-active');
+            const pastBtn = document.getElementById('order-subtab-past');
+
+            if (type === 'ACTIVE') {
+                activeBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm";
+                pastBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200";
+            } else {
+                pastBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm";
+                activeBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200";
+            }
+
+            renderOrdersList(type);
+        }
+
+        function renderOrdersList(type) {
+            const container = document.getElementById('orders-list');
+            const orders = type === 'ACTIVE' ? activeOrders : pastOrders;
+
+            if (!container) return;
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                        <i data-lucide="package-x" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                        <h4 class="font-bold text-slate-700 text-sm">No ${type.toLowerCase()} orders found</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Explore available surplus meals nearby.</p>
+                    </div>
+                `;
+                safeLucide();
+                return;
+            }
+
+            container.innerHTML = orders.map(ord => {
+                const isRefunded = ord.status === 'REFUNDED';
+                
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-xs font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">#${ord.orderId}</span>
+                                <h3 class="font-bold text-slate-900 text-base">${ord.storeName}</h3>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">${ord.title} (${ord.itemsCount} bag)</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            ${isRefunded ? 
+                                `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-600"></i> Instant Refunded
+                                 </span>` : 
+                                `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i> ${ord.status.replace('_', ' ')}
+                                 </span>`
+                            }
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex items-center gap-3">
+                            <div class="w-16 h-16 bg-white border border-slate-300 p-1 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner">
+                                <svg class="w-full h-full text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm9-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm13-2h3v3h-3v-3zm0 5h3v3h-3v-3zm-5-3h3v3h-3v-3zm0 5h3v3h-3v-3z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Digital Pickup Pass</span>
+                                <p class="text-xs font-mono font-bold text-slate-800">${ord.qrCodeSeed}</p>
+                                <span class="text-[11px] text-slate-500">Scan at Store Counter</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 text-xs text-slate-600">
+                            <div><strong>Pickup Window:</strong> ${ord.pickupWindow}</div>
+                            <div><strong>Paid Amount:</strong> <span class="text-emerald-700 font-bold">$${ord.totalPaid.toFixed(2)}</span> (Saved $${(ord.originalValue - ord.totalPaid).toFixed(2)})</div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row md:flex-col gap-2 justify-end">
+                            ${ord.allergyAlert ? `
+                                <div class="bg-red-50 border border-red-200 p-2 rounded-xl text-xs text-red-800 flex items-center gap-1.5 font-semibold">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-red-600 flex-shrink-0"></i>
+                                    <span>Kitchen Alert Sent: ${ord.allergyAlert}</span>
+                                </div>
+                            ` : `
+                                <button onclick="openAllergyModal('${ord.storeName}', '${ord.orderId}')" class="px-3.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i> Send Allergy Alert
+                                </button>
+                            `}
+
+                            ${!isRefunded ? `
+                                <button onclick="openRefundModal('${ord.orderId}')" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4 text-amber-600"></i> Request Instant Refund
+                                </button>
+                            ` : `
+                                <div class="text-xs text-amber-800 bg-amber-50 p-2 rounded-xl text-center font-medium border border-amber-200">
+                                    $${ord.totalPaid.toFixed(2)} Credited to Second Bite Wallet
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            safeLucide();
+        }
+
+        // 9. ALLERGY ALERT & INSTANT REFUND MODALS
+        function openAllergyModal(storeName, refId) {
+            activeAllergyTargetStore = storeName || 'Store Kitchen';
+            document.getElementById('allergy-store-name').textContent = activeAllergyTargetStore;
+            document.querySelectorAll('.allergy-cb').forEach(cb => cb.checked = false);
+            document.getElementById('allergy-custom-note').value = '';
+
+            const queueId = `KQ-${Math.floor(1000 + Math.random() * 9000)}`;
+            document.getElementById('allergy-queue-id').textContent = queueId;
+
+            document.getElementById('allergy-modal').classList.remove('hidden');
+            safeLucide();
+        }
+
+        function closeAllergyModal() {
+            document.getElementById('allergy-modal').classList.add('hidden');
+        }
+
+        function sendAllergyAlert() {
+            const checkedBoxes = Array.from(document.querySelectorAll('.allergy-cb:checked')).map(cb => cb.value);
+            const customNote = document.getElementById('allergy-custom-note').value.trim();
+
+            if (checkedBoxes.length === 0 && !customNote) {
+                showNotification('Selection Required', 'Please check an allergen or type a note.', 'alert');
+                return;
+            }
+
+            const alertSummary = checkedBoxes.concat(customNote ? [customNote] : []).join(', ');
+            const matchedOrder = activeOrders.find(o => o.storeName === activeAllergyTargetStore);
+            if (matchedOrder) {
+                matchedOrder.allergyAlert = alertSummary;
+                renderOrdersList('ACTIVE');
+            }
+
+            closeAllergyModal();
+            showNotification('Alert Dispatched', `Kitchen queue at ${activeAllergyTargetStore} notified: ${alertSummary}`);
+        }
+
+        let selectedRefundOrder = null;
+
+        function openRefundModal(orderId) {
+            const ord = activeOrders.find(o => o.orderId === orderId) || pastOrders.find(o => o.orderId === orderId);
+            if (!ord) return;
+
+            selectedRefundOrder = ord;
+            document.getElementById('ref-order-id').textContent = `#${ord.orderId}`;
+            document.getElementById('ref-refund-amount').textContent = `$${ord.totalPaid.toFixed(2)}`;
+            document.getElementById('refund-modal').classList.remove('hidden');
+            safeLucide();
+        }
+
+        function closeRefundModal() {
+            document.getElementById('refund-modal').classList.add('hidden');
+        }
+
+        function submitInstantRefund() {
+            if (!selectedRefundOrder) return;
+
+            selectedRefundOrder.status = 'REFUNDED';
+            if (activeOrders.some(o => o.orderId === selectedRefundOrder.orderId)) {
+                activeOrders = activeOrders.filter(o => o.orderId !== selectedRefundOrder.orderId);
+                pastOrders.unshift(selectedRefundOrder);
+            }
+
+            closeRefundModal();
+            renderOrdersList('PAST');
+            filterOrdersTab('PAST');
+
+            showNotification('Instant Refund Approved!', `$${selectedRefundOrder.totalPaid.toFixed(2)} credited to your Second Bite Wallet.`, 'refund');
+        }
+
+        // 10. IMPACT DASHBOARD LOGIC
+        function updateImpactDashboard() {
+            document.getElementById('user-header-savings').textContent = userStats.moneySaved.toFixed(2);
+            document.getElementById('impact-money-saved').textContent = `$${userStats.moneySaved.toFixed(2)}`;
+            document.getElementById('impact-kg-rescued').textContent = userStats.kgRescued.toFixed(1);
+            document.getElementById('impact-co2-offset').textContent = userStats.co2Offset.toFixed(1);
+            document.getElementById('impact-water-saved').textContent = userStats.waterSaved.toLocaleString();
+        }
+
+        // 11. CHAT BOT ASSISTANT
+        function toggleChatBox() {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.classList.toggle('hidden');
+            safeLucide();
+        }
+
+        function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            sendChatMessage(msg);
+            input.value = '';
+        }
+
+        function sendChatMessage(text) {
+            const container = document.getElementById('chat-messages');
+
+            const userBubble = document.createElement('div');
+            userBubble.className = "bg-emerald-600 text-white p-3 rounded-2xl shadow-sm max-w-[85%] ml-auto text-xs";
+            userBubble.textContent = text;
+            container.appendChild(userBubble);
+
+            setTimeout(() => {
+                const botBubble = document.createElement('div');
+                botBubble.className = "bg-white p-3 rounded-2xl border border-slate-200 shadow-sm max-w-[85%] text-xs space-y-1";
+                
+                let reply = "Thanks for asking! Second Bite guarantees 100% meal transparency and 1-click instant refunds for all surplus orders.";
+                const lower = text.toLowerCase();
+
+                if (lower.includes('refund')) {
+                    reply = "⚡ <strong>Instant Refund Policy:</strong> If a store closes early or an item falls short, go to 'My Orders' and tap 'Request Instant Refund'. Money is credited to your wallet immediately!";
+                } else if (lower.includes('content') || lower.includes('bag') || lower.includes('inside')) {
+                    reply = "👁️ <strong>Full Transparency:</strong> Every meal card shows exact items (e.g., 2 Croissants, 1 Sourdough Loaf) before checkout!";
+                }
+
+                botBubble.innerHTML = reply;
+                container.appendChild(botBubble);
+                container.scrollTop = container.scrollHeight;
+            }, 300);
+
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+</body>
+</html>
